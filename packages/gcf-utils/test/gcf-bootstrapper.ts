@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GCFBootstrapper, TriggerType} from '../src/gcf-utils';
+import {GCFBootstrapper, TriggerType, TriggerInfo} from '../src/gcf-utils';
 import {describe, beforeEach, afterEach, it} from 'mocha';
 import {GitHubAPI} from 'probot/lib/github';
 import {Options} from 'probot';
@@ -351,9 +351,11 @@ describe('GCFBootstrapper', () => {
 
     it('returns correct scheduler trigger info', () => {
       const requestBody = {};
+      const github_delivery_guid = '';
       const triggerType = TriggerType.SCHEDULER;
       const triggerInfo = bootstrapper.buildTriggerInfo(
         triggerType,
+        github_delivery_guid,
         requestBody
       );
       const expectedInfo = {
@@ -363,16 +365,20 @@ describe('GCFBootstrapper', () => {
       };
       assert.deepEqual(triggerInfo, expectedInfo);
     });
+
     it('returns correct task trigger info', () => {
       const requestBody = {};
+      const github_delivery_guid = '1234';
       const triggerType = TriggerType.TASK;
-      const triggerInfo = bootstrapper.buildTriggerInfo(
+      const triggerInfo: TriggerInfo = bootstrapper.buildTriggerInfo(
         triggerType,
+        github_delivery_guid,
         requestBody
       );
-      const expectedInfo = {
+      const expectedInfo: TriggerInfo = {
         trigger: {
-          trigger_type: 'TASK',
+          trigger_type: TriggerType.TASK,
+          github_delivery_guid: '1234',
         },
       };
       assert.deepEqual(triggerInfo, expectedInfo);
@@ -381,15 +387,18 @@ describe('GCFBootstrapper', () => {
     it('returns correct Github trigger info', () => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const requestBody = require('../../test/fixtures/github-webhook-payload-all-info.json');
+      const github_delivery_guid = '1234';
       const triggerType = TriggerType.GITHUB;
       const triggerInfo = bootstrapper.buildTriggerInfo(
         triggerType,
+        github_delivery_guid,
         requestBody
       );
       const expectedInfo = {
         trigger: {
           trigger_type: 'GITHUB_WEBHOOK',
           trigger_sender: 'testUser2',
+          github_delivery_guid: '1234',
           trigger_source_repo: {
             owner: 'testOwner',
             owner_type: 'User',
@@ -403,15 +412,18 @@ describe('GCFBootstrapper', () => {
     it('returns UNKNOWN for Github trigger info when information is unavailable', () => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const requestBody = require('../../test/fixtures/github-webhook-payload-missing-info.json');
+      const github_delivery_guid = '';
       const triggerType = TriggerType.GITHUB;
-      const triggerInfo = bootstrapper.buildTriggerInfo(
+      const triggerInfo: TriggerInfo = bootstrapper.buildTriggerInfo(
         triggerType,
+        github_delivery_guid,
         requestBody
       );
-      const expectedInfo = {
+      const expectedInfo: TriggerInfo = {
         trigger: {
-          trigger_type: 'GITHUB_WEBHOOK',
+          trigger_type: TriggerType.GITHUB,
           trigger_sender: 'UNKNOWN',
+          github_delivery_guid: '',
           trigger_source_repo: {
             owner: 'UNKNOWN',
             owner_type: 'UNKNOWN',
