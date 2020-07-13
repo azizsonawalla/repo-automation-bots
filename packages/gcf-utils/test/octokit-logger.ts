@@ -19,6 +19,7 @@ describe('Octokit-Logger', () => {
   it('test', () => {
     const MyOctokit = Octokit.plugin(require('../src/octokit-logger.js'));
     const myOctokit: any = new MyOctokit();
+    new Octokit().issues.createComment();
     console.log(myOctokit.withLogs.pulls.checkIfMerged());
     // myOctokit.withLogs.issues.addLabel('owner', 'repo', 123, 'label');
   });
