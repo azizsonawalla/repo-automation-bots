@@ -26,6 +26,7 @@ interface GitHubAction {
   };
 }
 
+// Some aliases for shorter code
 type RequestOptions = Octokit.RequestOptions;
 type Response<T> = Promise<Octokit.Response<T>>;
 
