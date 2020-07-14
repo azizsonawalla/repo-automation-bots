@@ -46,10 +46,46 @@ interface MetricLogger {
   metric: {(data: GitHubActionLog): void};
 }
 
-function parseActionDetails(
-  type: GitHubActionType,
-  options: {[key: string]: string | number}
-): GitHubActionDetails {
+/**
+ * Maps GitHub API endpoints to a GitHubActionType
+ */
+const ActionUrlMap: {[url: string]: {[method: string]: GitHubActionType}} = {
+  '/repos/:owner/:repo/issues/:issue_number/labels': {
+    POST: GitHubActionType.ISSUE_ADD_LABELS,
+  },
+  '/repos/:owner/:repo/labels': {
+    POST: GitHubActionType.ISSUE_CREATE_LABEL,
+  },
+  '/repos/:owner/:repo/issues/:issue_number/comments': {
+    POST: GitHubActionType.ISSUE_CREATE_COMMENT,
+  },
+  '/repos/:owner/:repo/issues/:issue_number/labels/:name': {
+    DELETE: GitHubActionType.ISSUE_REMOVE_LABEL,
+  },
+  '/repos/:owner/:repo/labels/:name': {
+    DELETE: GitHubActionType.ISSUE_DELETE_LABEL,
+  },
+  '/repos/:owner/:repo/labels/:current_name': {
+    PATCH: GitHubActionType.ISSUE_UPDATE_LABEL,
+  },
+  '/repos/:owner/:repo/issues/:issue_number': {
+    PATCH: GitHubActionType.ISSUE_UPDATE,
+  },
+  '/repos/:owner/:repo/issues': {
+    POST: GitHubActionType.ISSUE_CREATE,
+  },
+};
+
+/**
+ * Parses the outgoing GitHub request to determine the details of the action being taken
+ * @param options options from outgoing request
+ */
+function parseActionDetails(options: {
+  [key: string]: string | number;
+}): GitHubActionDetails {
+  const actionType: GitHubActionType =
+    ActionUrlMap[options.url][options.method] || GitHubActionType.UNKNOWN;
+
   const details: GitHubActionDetails = {};
   const allIssueUpdateProps = [
     'body',
@@ -63,7 +99,7 @@ function parseActionDetails(
     (prop: string) => options[prop]
   );
 
-  switch (type) {
+  switch (actionType) {
     case GitHubActionType.ISSUE_ADD_LABELS:
       details.value = String(options.labels);
       break;
@@ -92,10 +128,16 @@ function parseActionDetails(
   }
   details.repoName = String(options['repo']);
   details.repoOwner = String(options['owner']);
+  details.type = actionType;
 
   return details;
 }
 
+/**
+ * Log a GitHub action as a GitHubActionLog
+ * @param logger logger instance
+ * @param details action details
+ */
 function logGithubAction(logger: MetricLogger, details: GitHubActionDetails) {
   if (!details.type || details.type === GitHubActionType.UNKNOWN) {
     // don't log unknown action types
@@ -126,33 +168,9 @@ function logGithubAction(logger: MetricLogger, details: GitHubActionDetails) {
   logger.metric(githubAction);
 }
 
-const ActionUrlMap: {[url: string]: {[method: string]: GitHubActionType}} = {
-  '/repos/:owner/:repo/issues/:issue_number/labels': {
-    POST: GitHubActionType.ISSUE_ADD_LABELS,
-  },
-  '/repos/:owner/:repo/labels': {
-    POST: GitHubActionType.ISSUE_CREATE_LABEL,
-  },
-  '/repos/:owner/:repo/issues/:issue_number/comments': {
-    POST: GitHubActionType.ISSUE_CREATE_COMMENT,
-  },
-  '/repos/:owner/:repo/issues/:issue_number/labels/:name': {
-    DELETE: GitHubActionType.ISSUE_REMOVE_LABEL,
-  },
-  '/repos/:owner/:repo/labels/:name': {
-    DELETE: GitHubActionType.ISSUE_DELETE_LABEL,
-  },
-  '/repos/:owner/:repo/labels/:current_name': {
-    PATCH: GitHubActionType.ISSUE_UPDATE_LABEL,
-  },
-  '/repos/:owner/:repo/issues/:issue_number': {
-    PATCH: GitHubActionType.ISSUE_UPDATE,
-  },
-  '/repos/:owner/:repo/issues': {
-    POST: GitHubActionType.ISSUE_CREATE,
-  },
-};
-
+/**
+ * Hooks into outgoing requests from Octokit to log metrics
+ */
 module.exports = (
   octokit: Octokit,
   pluginOptions: {customLogger?: MetricLogger}
@@ -160,13 +178,7 @@ module.exports = (
   const octoLogger = pluginOptions.customLogger || logger;
 
   octokit.hook.before('request', async options => {
-    const actionType: GitHubActionType =
-      ActionUrlMap[options.url][options.method] || GitHubActionType.UNKNOWN;
-    const actionDetails: GitHubActionDetails = parseActionDetails(
-      actionType,
-      options
-    );
-    actionDetails.type = actionType;
+    const actionDetails: GitHubActionDetails = parseActionDetails(options);
 
     logGithubAction(octoLogger, actionDetails);
   });

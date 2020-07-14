@@ -16,7 +16,7 @@ import {describe, beforeEach, it} from 'mocha';
 import {Octokit} from '@octokit/rest';
 import assert from 'assert';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const LoggingOctokitPlugin = require('../src/octokit-request-logger.js');
+const LoggingOctokitPlugin = require('../src/logging-octokit-plugin.js');
 
 interface LogStatement {
   [key: string]: string | number | LogStatement;
