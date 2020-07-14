@@ -47,7 +47,7 @@ interface EnqueueTaskParams {
   name: string;
 }
 
-interface LogFn {
+export interface LogFn {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (msg: string, ...args: any[]): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

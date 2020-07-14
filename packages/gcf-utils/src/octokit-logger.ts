@@ -10,7 +10,7 @@ enum GitHubActionType {
   UNKNOWN,
   DELETE_ISSUE_LABEL,
   UPDATE_ISSUE,
-  CREATE_ISSUE
+  CREATE_ISSUE,
 }
 
 enum GitHubObjectType {
@@ -100,6 +100,20 @@ function logGithubAction(
 module.exports = (octokit: Octokit, options: {customLogger?: GCFLogger}) => {
   const octoLogger: GCFLogger = options.customLogger || logger;
 
+  // const _issues_addLabels = octokit.issues.addLabels;
+  // const _new_issues_addLabels = (
+  //   params?: RequestOptions & Octokit.IssuesAddLabelsParams
+  // ): Response<Octokit.IssuesAddLabelsResponse> => {
+  //   logGithubIssueAction(
+  //     GitHubActionType.ADD_LABEL,
+  //     params?.labels.join(', '),
+  //     params
+  //   );
+  //   return _issues_addLabels(params);
+  // }
+  // _new_issues_addLabels.endpoint = octokit.issues.addLabels.endpoint;
+  // octokit.issues.addLabels = _new_issues_addLabels;
+
   // TODO: add comment about octokit version
   (<any>octokit).trackedAction = {
     issues: {
@@ -171,22 +185,14 @@ module.exports = (octokit: Octokit, options: {customLogger?: GCFLogger}) => {
       update: (
         params?: RequestOptions & Octokit.IssuesUpdateParams
       ): Response<Octokit.IssuesUpdateResponse> => {
-        logGithubIssueAction(
-          GitHubActionType.UPDATE_ISSUE,
-          "",
-          params
-        );
+        logGithubIssueAction(GitHubActionType.UPDATE_ISSUE, '', params);
         return octokit.issues.update(params);
       },
 
       create: (
         params?: RequestOptions & Octokit.IssuesCreateParams
       ): Response<Octokit.IssuesCreateResponse> => {
-        logGithubIssueAction(
-          GitHubActionType.CREATE_ISSUE,
-          "",
-          params
-        );
+        logGithubIssueAction(GitHubActionType.CREATE_ISSUE, '', params);
         return octokit.issues.create(params);
       },
     },
