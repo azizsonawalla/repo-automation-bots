@@ -191,7 +191,11 @@ module.exports = (octokit: Octokit, options: {customLogger?: GCFLogger}) => {
       },
     },
     pulls: {
-      dismissReview: () => {},
+      dismissReview: (
+        params?: Octokit.RequestOptions & Octokit.PullsDismissReviewParams
+      ): Promise<Octokit.Response<Octokit.PullsDismissReviewResponse>> => {
+        return octokit.pulls.dismissReview(params);
+      },
       merge: () => {},
       updateBranch: () => {},
     },

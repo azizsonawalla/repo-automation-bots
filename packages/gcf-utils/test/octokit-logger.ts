@@ -14,13 +14,18 @@
 
 import {describe, beforeEach, it} from 'mocha';
 import {Octokit} from '@octokit/rest';
+import { LoggingOctokit } from '../src/logging-octokit';
 
 describe('Octokit-Logger', () => {
   it('test', () => {
-    const MyOctokit = Octokit.plugin(require('../src/octokit-logger.js'));
-    const myOctokit: any = new MyOctokit();
-    new Octokit().issues.createComment();
-    console.log(myOctokit.withLogs.pulls.checkIfMerged());
+    const MyOctokit = Octokit.plugin(require('../src/octokit-request-logger.js'));
+    const myOctokit: Octokit = new MyOctokit();
+    myOctokit.issues.addLabels({owner: 'owner', issue_number: 2,repo: 'repo', labels: ['a', 'b']})
     // myOctokit.withLogs.issues.addLabel('owner', 'repo', 123, 'label');
   });
+  // it('test', () => {
+  //   const myOctokit: LoggingOctokit = new LoggingOctokit();
+  //   new Octokit().issues.addLabels();
+  //   // myOctokit.withLogs.issues.addLabel('owner', 'repo', 123, 'label');
+  // });
 });
