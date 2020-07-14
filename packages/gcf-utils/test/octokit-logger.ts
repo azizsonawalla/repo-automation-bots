@@ -55,7 +55,7 @@ describe('Octokit-Logger', () => {
         const expected = {
           action: {
             type: 'ISSUE_ADD_LABELS',
-            value: ['a', 'b'],
+            value: 'a,b',
             destination_repo: {
               repo_name: 'barRepo',
               owner: 'fooOwner',
