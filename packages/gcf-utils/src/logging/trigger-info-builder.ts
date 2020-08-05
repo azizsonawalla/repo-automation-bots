@@ -28,8 +28,7 @@ export enum TriggerType {
 /**
  * Information on GCF execution trigger
  */
-interface TriggerInfo {
-  message: string;
+export interface TriggerInfo {
   trigger: {
     trigger_type: TriggerType;
     trigger_sender?: string;
@@ -66,7 +65,6 @@ export function buildTriggerInfo(
   const UNKNOWN = 'UNKNOWN';
 
   const triggerInfo: TriggerInfo = {
-    message: `Execution started by ${triggerType}`,
     trigger: {
       trigger_type: triggerType,
     },
