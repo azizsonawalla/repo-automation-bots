@@ -1,0 +1,11 @@
+{
+  "name": "dashboard",
+  "version": "1.0.0",
+  "description": "A dashboard to view real-time metrics from repo-automation-bots",
+  "main": "build/server/server.js",
+  "scripts": {
+    "test": "echo \"No test command set\""
+  },
+  "author": "asonawalla@google.com",
+  "license": "ISC"
+}
