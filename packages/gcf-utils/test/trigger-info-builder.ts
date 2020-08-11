@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TriggerType} from '../src/gcf-utils';
 import {describe, it} from 'mocha';
 import assert from 'assert';
-import {buildTriggerInfo} from '../src/logging/trigger-info-builder';
+import {
+  buildTriggerInfo,
+  TriggerType,
+} from '../src/logging/trigger-info-builder';
 
 describe('buildTriggerInfo', () => {
   it('returns correct pub/sub trigger info', () => {

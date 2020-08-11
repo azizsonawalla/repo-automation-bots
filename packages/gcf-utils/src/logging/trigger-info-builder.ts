@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-import {TriggerType} from '../gcf-utils';
 import crypto from 'crypto';
+
+/**
+ * Type of function execution trigger
+ */
+export enum TriggerType {
+  GITHUB = 'GitHub Webhook',
+  SCHEDULER = 'Cloud Scheduler',
+  TASK = 'Cloud Task',
+  PUBSUB = 'Pub/Sub',
+  UNKNOWN = 'Unknown',
+}
 
 /**
  * Information on GCF execution trigger
