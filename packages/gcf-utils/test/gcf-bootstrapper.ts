@@ -206,6 +206,45 @@ describe('GCFBootstrapper', () => {
 
       sinon.assert.calledOnce(enqueueTask);
     });
+
+    it('binds the trigger information to the logger', async () => {
+      await mockBootstrapper();
+      req.body = {
+        installation: {id: 1},
+      };
+      req.headers = {};
+      req.headers['x-github-event'] = 'issues';
+      req.headers['x-github-delivery'] = '123';
+      req.headers['x-cloudtasks-taskname'] = 'my-task';
+
+      await handler(req, response);
+
+      const expectedBindings = {
+        trigger: {trigger_type: 'Cloud Task', github_delivery_guid: '123'},
+      };
+      assert.deepEqual(logger.bindings(), expectedBindings);
+    });
+
+    it('resets the logger on each call', async () => {
+      await mockBootstrapper();
+      req.body = {
+        installation: {id: 1},
+      };
+      req.headers = {};
+      req.headers['x-github-event'] = 'issues';
+      req.headers['x-github-delivery'] = '123';
+      req.headers['x-cloudtasks-taskname'] = 'my-task';
+
+      await handler(req, response);
+
+      const expectedBindings = {
+        trigger: {trigger_type: 'Cloud Task', github_delivery_guid: '123'},
+      };
+      assert.deepEqual(logger.bindings(), expectedBindings);
+
+      await mockBootstrapper();
+      assert.deepEqual(logger.bindings(), {});
+    });
   });
 
   describe('loadProbot', () => {
@@ -365,28 +404,6 @@ describe('GCFBootstrapper', () => {
       process.env.GCF_SHORT_FUNCTION_NAME = 'bar';
       const latest = bootstrapper.getSecretName();
       assert.strictEqual(latest, 'projects/foo/secrets/bar');
-    });
-  });
-
-  describe('bindPropertiesToLogger', () => {
-    it('binds given properties', () => {
-      const triggerInfoWithoutMessage = {
-        trigger: {
-          trigger_type: 'GITHUB_WEBHOOK',
-          trigger_sender: 'some sender',
-          payload_hash: '123456',
-
-          trigger_source_repo: {
-            owner: 'foo owner',
-            owner_type: 'Org',
-            repo_name: 'bar name',
-            url: 'some url',
-          },
-        },
-      };
-
-      GCFBootstrapper['bindPropertiesToLogger'](triggerInfoWithoutMessage);
-      assert.deepEqual(logger.bindings(), triggerInfoWithoutMessage);
     });
   });
 });

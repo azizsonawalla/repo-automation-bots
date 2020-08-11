@@ -56,6 +56,26 @@ export interface WrapOptions {
 
 export let logger: GCFLogger = initLogger();
 
+/**
+ * Binds the given properties to the logger so that every logged statement
+ * includes these properties.
+ *
+ * NOTE: statements logged before this method is called will not include
+ * this information
+ *
+ * @param bindings object containing properties to bind to the logger
+ */
+function bindPropertiesToLogger(bindings: {}) {
+  logger = logger.child(bindings);
+}
+
+/**
+ * Resets the logger to the default configuration
+ */
+function resetLogger() {
+  logger = initLogger();
+}
+
 export interface CronPayload {
   repository: {
     name: string;
@@ -170,24 +190,14 @@ export class GCFBootstrapper {
     return TriggerType.UNKNOWN;
   }
 
-  /**
-   * Binds the given properties to the logger so that every logged statement
-   * includes these properties.
-   *
-   * NOTE: statements logged before this method is called will not include
-   * this information
-   *
-   * @param bindings object containing properties to bind to the logger
-   */
-  private static bindPropertiesToLogger(bindings: {}) {
-    logger = logger.child(bindings);
-  }
-
   gcf(
     appFn: ApplicationFunction,
     wrapOptions?: WrapOptions
   ): (request: express.Request, response: express.Response) => Promise<void> {
     return async (request: express.Request, response: express.Response) => {
+      // Need to clear any bindings from previous calls
+      resetLogger();
+
       wrapOptions = wrapOptions ?? {background: true, logging: false};
 
       this.probot =
@@ -203,7 +213,7 @@ export class GCFBootstrapper {
       );
 
       const triggerInfo = buildTriggerInfo(triggerType, id, request.body);
-      GCFBootstrapper.bindPropertiesToLogger(triggerInfo);
+      bindPropertiesToLogger(triggerInfo);
       logger.metric(`Execution started by ${triggerType}`);
 
       try {
