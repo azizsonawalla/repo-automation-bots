@@ -1,5 +1,5 @@
 {
-  "name": "dashboard",
+  "name": "monitoring-dashboard",
   "version": "1.0.0",
   "description": "A dashboard to view repo-automation-bot metrics",
   "main": "build/src/server.js",
@@ -12,9 +12,10 @@
     "build": "npm run build-server-only && npm run build-client-only",
     "start": "node ./build/src/server.js",
     "docker-start-local": "docker run --network=host -d dashboard:1.0",
-    "docker-build-local": "docker build --tag dashboard:1.0 .",
-    "local-docker": "npm run compile && npm run docker-build-local && npm run docker-start-local",
-    "deploy": "npm run compile && gcloud config set project repo-automation-bots && gcloud builds submit --tag gcr.io/repo-automation-bots/dashboard && gcloud run deploy --image gcr.io/repo-automation-bots/dashboard --platform managed"
+    "docker-build-local": "docker build --tag monitoring-dashboard:1.0 .",
+    "local-docker": "npm run build && npm run docker-build-local && npm run docker-start-local",
+    "deploy": "gcloud config set project repo-automation-bots && gcloud builds submit --tag gcr.io/repo-automation-bots/monitoring-dashboard && gcloud run deploy --image gcr.io/repo-automation-bots/monitoring-dashboard --platform managed",
+    "gcurl": "curl --header \"Authorization: Bearer $(gcloud auth print-identity-token)\""
   },
   "repository": "https://github.com/googleapis/repo-automation-bots.git",
   "homepage": "https://github.com/googleapis/repo-automation-bots",
