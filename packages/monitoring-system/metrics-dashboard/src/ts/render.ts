@@ -166,7 +166,7 @@ export class Render {
             .range([0, width])
         
         const yScale = d3.scaleLinear()
-                .domain([minY, maxY])
+                .domain([minY, maxY*1.5])
                 .range([height, 0])
         
         /*
@@ -189,7 +189,7 @@ export class Render {
         
         const yAxis = svg.append('g')
             .attr('class', 'y axis')
-          .call(d3.axisLeft(yScale))
+          .call(d3.axisLeft(yScale).ticks(maxY+2));
         
         /*
          * Appending the line to the SVG.
